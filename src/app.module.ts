@@ -6,7 +6,7 @@ import { PostsService } from './authors/services/posts.service';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 import { AuthorsResolver } from './authors/authors.resolver';
-import { RolesGuard } from './auth/roles.guard';
+import { RolesGuard } from './auth/backoffice.guard';
 
 @Module({
   imports: [

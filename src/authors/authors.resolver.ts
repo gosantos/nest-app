@@ -8,10 +8,10 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { Author } from './models/author.model';
+import { Post } from './models/post.model';
 import { AuthorsService } from './services/authors.service';
 import { PostsService } from './services/posts.service';
-import { Roles } from 'src/auth/roles.decorator';
-import { Role } from 'src/auth/role.enum';
+import { Role, Roles } from 'src/auth/backoffice.guard';
 
 @Resolver(() => Author)
 export class AuthorsResolver {
@@ -47,27 +47,26 @@ export class AuthorsResolver {
     @Args('authorId', { type: () => Int }) authorId: number,
     @Args('continuationToken', { type: () => Int }) continuationToken: number,
   ) {
-    console.log(authorId, continuationToken);
-
     const author = this.authorsService.findOneById(authorId);
-    console.log(author);
-
     const posts = this.postsService.findAll({ authorId, continuationToken });
-    console.log(posts);
 
-    const res = {
+    return {
       ...author,
       posts,
     };
-
-    console.log({ res });
-
-    return res;
   }
 
-  @ResolveField()
-  async posts(@Parent() author: Author) {
+  @ResolveField((_) => [Post], {
+    name: 'posts',
+    nullable: true,
+  })
+  async posts(
+    @Parent() author: Author,
+    @Args('continuationToken', { type: () => Int, nullable: true })
+    continuationToken: number,
+  ) {
     const { id } = author;
-    return this.postsService.findAll({ authorId: id });
+
+    return this.postsService.findAll({ authorId: id, continuationToken });
   }
 }

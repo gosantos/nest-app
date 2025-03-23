@@ -1,8 +1,20 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  SetMetadata,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { Role } from './role.enum';
-import { ROLES_KEY } from './roles.decorator';
+
+export enum Role {
+  User = 'user',
+  Admin = 'admin',
+  None = 'none',
+}
+
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -27,9 +39,23 @@ export class RolesGuard implements CanActivate {
     }
 
     const ctx = GqlExecutionContext.create(context);
+    const token = this.extractTokenFromHeader(ctx);
+
+    if (!token) {
+      return false;
+    }
+
     const userRole = ctx.getContext().req.headers.user;
     console.log('User:', userRole);
 
     return requiredRoles.some((requiredRole) => userRole == requiredRole);
+  }
+
+  private extractTokenFromHeader(ctx: GqlExecutionContext) {
+    const token = ctx
+      .getContext()
+      .req.headers.authorization?.replace('Bearer ', '');
+
+    return token;
   }
 }

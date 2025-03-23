@@ -30,7 +30,11 @@ export class PostsService {
     continuationToken?: number;
   }): PostSubType[] {
     if (continuationToken) {
-      return this.posts.slice(continuationToken + 1);
+      const filteredPosts = this.posts
+        .filter((post) => post.authorId === authorId)
+        .filter((post) => post.id > continuationToken);
+
+      return filteredPosts;
     }
 
     return this.posts.filter((post) => post.authorId === authorId);
