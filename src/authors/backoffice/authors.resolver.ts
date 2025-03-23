@@ -7,14 +7,20 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { Author } from './models/author.model';
-import { Post } from './models/post.model';
-import { AuthorsService } from './services/authors.service';
-import { PostsService } from './services/posts.service';
-import { BackofficeRole, BackofficeRoles } from 'src/auth/backoffice.guard';
+import { Author } from '../models/author.model';
+import { Post } from '../models/post.model';
+import { AuthorsService } from '../services/authors.service';
+import { PostsService } from '../services/posts.service';
+import {
+  BackofficeRole,
+  BackofficeRoles,
+  BackofficeRolesGuard,
+} from 'src/auth/backoffice.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Author)
-export class AuthorsResolver {
+@UseGuards(BackofficeRolesGuard)
+export class Authors {
   constructor(
     private authorsService: AuthorsService,
     private postsService: PostsService,

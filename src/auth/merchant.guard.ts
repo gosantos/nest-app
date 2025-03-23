@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { isConstValueNode } from 'graphql';
 
 export enum MerchantRole {
   Merchant = 'merchant',
@@ -35,18 +36,27 @@ export class MerchantGuard implements CanActivate {
     }
 
     const ctx = GqlExecutionContext.create(context);
-    const token = this.extractTokenFromHeader(ctx);
+    const token = this.extractTokenFromHeader(ctx) || '1,merchant';
 
-    console.log('Extracting Token:', token);
+    console.log('Token extracted from context', token);
 
     if (!token) {
       return false;
     }
 
-    const userRole = ctx.getContext().req.headers.user;
-    console.log('User:', userRole);
+    const [user, role] = token.split(',');
 
-    return requiredMerchant.some((requiredRole) => userRole == requiredRole);
+    const request = context.switchToHttp().getNext();
+
+    request.headers = {
+      ...request.headers,
+      user,
+      role,
+    };
+
+    console.log({ next: context.switchToHttp().getNext().headers.user });
+
+    return requiredMerchant.some((requiredRole) => role == requiredRole);
   }
 
   private extractTokenFromHeader(ctx: GqlExecutionContext) {

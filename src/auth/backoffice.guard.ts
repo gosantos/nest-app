@@ -13,7 +13,7 @@ export enum BackofficeRole {
   None = 'none',
 }
 
-export const ROLES_KEY = 'roles';
+const ROLES_KEY = 'roles';
 export const BackofficeRoles = (...roles: BackofficeRole[]) =>
   SetMetadata(ROLES_KEY, roles);
 
@@ -24,10 +24,9 @@ export class BackofficeRolesGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     console.log('Entering BackofficeRolesGuard');
 
-    const requiredBackofficeRoles = this.reflector.getAllAndOverride<BackofficeRole[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredBackofficeRoles = this.reflector.getAllAndOverride<
+      BackofficeRole[]
+    >(ROLES_KEY, [context.getHandler(), context.getClass()]);
 
     console.log('Required BackofficeRoles:', requiredBackofficeRoles);
 
@@ -40,25 +39,11 @@ export class BackofficeRolesGuard implements CanActivate {
     }
 
     const ctx = GqlExecutionContext.create(context);
-    const token = this.extractTokenFromHeader(ctx);
-
-    if (!token) {
-      return false;
-    }
-
     const userRole = ctx.getContext().req.headers.user;
     console.log('User:', userRole);
 
     return requiredBackofficeRoles.some(
       (requiredRole) => userRole == requiredRole,
     );
-  }
-
-  private extractTokenFromHeader(ctx: GqlExecutionContext) {
-    const token = ctx
-      .getContext()
-      .req.headers.authorization?.replace('Bearer ', '');
-
-    return token;
   }
 }

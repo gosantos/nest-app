@@ -4,9 +4,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthorsService } from './authors/services/authors.service';
 import { PostsService } from './authors/services/posts.service';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-
-import { AuthorsResolver } from './authors/authors.resolver';
-import { BackofficeRolesGuard } from './auth/backoffice.guard';
+import { Authors as BackofficeAuthors } from './authors/backoffice/authors.resolver';
+import { Authors as MerchantAuthors } from './authors/merchant/authors.resolver';
 
 @Module({
   imports: [
@@ -18,14 +17,6 @@ import { BackofficeRolesGuard } from './auth/backoffice.guard';
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
   ],
-  providers: [
-    AuthorsService,
-    PostsService,
-    AuthorsResolver,
-    {
-      provide: 'APP_GUARD',
-      useClass: BackofficeRolesGuard,
-    },
-  ],
+  providers: [AuthorsService, PostsService, BackofficeAuthors, MerchantAuthors],
 })
 export class AppModule {}
