@@ -41,6 +41,30 @@ export class AuthorsResolver {
     return this.authorsService.create({ firstName, lastName });
   }
 
+  @Query(() => Author)
+  @Roles(Role.Admin)
+  async findAllAuthorPosts(
+    @Args('authorId', { type: () => Int }) authorId: number,
+    @Args('continuationToken', { type: () => Int }) continuationToken: number,
+  ) {
+    console.log(authorId, continuationToken);
+
+    const author = this.authorsService.findOneById(authorId);
+    console.log(author);
+
+    const posts = this.postsService.findAll({ authorId, continuationToken });
+    console.log(posts);
+
+    const res = {
+      ...author,
+      posts,
+    };
+
+    console.log({ res });
+
+    return res;
+  }
+
   @ResolveField()
   async posts(@Parent() author: Author) {
     const { id } = author;

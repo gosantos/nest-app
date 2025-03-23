@@ -22,12 +22,18 @@ export class PostsService {
     return post;
   }
 
-  findAll({ authorId }: { authorId?: number }): PostSubType[] {
-    if (authorId) {
-      return this.posts.filter((post) => post.authorId === authorId);
+  findAll({
+    authorId,
+    continuationToken,
+  }: {
+    authorId: number;
+    continuationToken?: number;
+  }): PostSubType[] {
+    if (continuationToken) {
+      return this.posts.slice(continuationToken + 1);
     }
 
-    return this.posts;
+    return this.posts.filter((post) => post.authorId === authorId);
   }
 
   findOneById(id: number): PostSubType | undefined {
