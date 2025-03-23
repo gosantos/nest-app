@@ -11,7 +11,7 @@ import { Author } from './models/author.model';
 import { Post } from './models/post.model';
 import { AuthorsService } from './services/authors.service';
 import { PostsService } from './services/posts.service';
-import { Role, Roles } from 'src/auth/backoffice.guard';
+import { BackofficeRole, BackofficeRoles } from 'src/auth/backoffice.guard';
 
 @Resolver(() => Author)
 export class AuthorsResolver {
@@ -21,19 +21,19 @@ export class AuthorsResolver {
   ) {}
 
   @Query(() => Author)
-  @Roles(Role.Admin, Role.User)
+  @BackofficeRoles(BackofficeRole.Admin, BackofficeRole.User)
   async author(@Args('id', { type: () => Int }) id: number) {
     return this.authorsService.findOneById(id);
   }
 
   @Query(() => [Author])
-  @Roles(Role.Admin)
+  @BackofficeRoles(BackofficeRole.Admin)
   async authors() {
     return this.authorsService.findAll();
   }
 
   @Mutation(() => Author)
-  @Roles(Role.Admin)
+  @BackofficeRoles(BackofficeRole.Admin)
   async createAuthor(
     @Args('firstName') firstName: string,
     @Args('lastName') lastName: string,
@@ -42,7 +42,7 @@ export class AuthorsResolver {
   }
 
   @Query(() => Author)
-  @Roles(Role.Admin)
+  @BackofficeRoles(BackofficeRole.Admin)
   async findAllAuthorPosts(
     @Args('authorId', { type: () => Int }) authorId: number,
     @Args('continuationToken', { type: () => Int }) continuationToken: number,

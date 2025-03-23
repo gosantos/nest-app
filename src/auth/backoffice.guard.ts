@@ -7,34 +7,35 @@ import {
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
-export enum Role {
+export enum BackofficeRole {
   User = 'user',
   Admin = 'admin',
   None = 'none',
 }
 
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
+export const BackofficeRoles = (...roles: BackofficeRole[]) =>
+  SetMetadata(ROLES_KEY, roles);
 
 @Injectable()
-export class RolesGuard implements CanActivate {
+export class BackofficeRolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext) {
-    console.log('Entering RolesGuard');
+    console.log('Entering BackofficeRolesGuard');
 
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredBackofficeRoles = this.reflector.getAllAndOverride<BackofficeRole[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    console.log('Required Roles:', requiredRoles);
+    console.log('Required BackofficeRoles:', requiredBackofficeRoles);
 
-    if (!requiredRoles) {
+    if (!requiredBackofficeRoles) {
       return false;
     }
 
-    if (requiredRoles.some((role) => role == Role.None)) {
+    if (requiredBackofficeRoles.some((role) => role == BackofficeRole.None)) {
       return true;
     }
 
@@ -48,7 +49,9 @@ export class RolesGuard implements CanActivate {
     const userRole = ctx.getContext().req.headers.user;
     console.log('User:', userRole);
 
-    return requiredRoles.some((requiredRole) => userRole == requiredRole);
+    return requiredBackofficeRoles.some(
+      (requiredRole) => userRole == requiredRole,
+    );
   }
 
   private extractTokenFromHeader(ctx: GqlExecutionContext) {
