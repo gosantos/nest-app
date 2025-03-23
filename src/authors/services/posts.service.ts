@@ -3,14 +3,18 @@ import { Post } from '../models/post.model';
 
 type PostSubType = Post & { authorId: number };
 
+const posts: PostSubType[] = Array.from({ length: 100 }, (_, i) => {
+  return {
+    id: i + 1,
+    authorId: Math.floor(Math.random() * 3) + 1,
+    title: crypto.randomUUID(),
+    votes: Math.floor(Math.random() * 100),
+  };
+});
+
 @Injectable()
 export class PostsService {
-  private readonly posts: Array<PostSubType> = [
-    { id: 1, title: 'Main post', votes: 300, authorId: 1 },
-    { id: 2, title: 'Second post', votes: 200, authorId: 1 },
-    { id: 3, title: 'Third post', votes: 100, authorId: 2 },
-    { id: 4, title: 'Fourth post', votes: 100, authorId: 2 },
-  ];
+  private readonly posts: Array<PostSubType> = posts;
 
   create(post: PostSubType): PostSubType {
     post.id = this.posts.length + 1;

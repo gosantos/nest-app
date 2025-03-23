@@ -11,10 +11,10 @@ export class AuthorsService {
     { id: 3, firstName: 'Bob', lastName: 'Smith' },
   ];
 
-  create(author: AuthorSubType): AuthorSubType {
-    author.id = this.authors.length + 1;
-    this.authors.push(author);
-    return author;
+  create(author: Omit<AuthorSubType, 'id'>): AuthorSubType {
+    const newAuthor = { ...author, id: this.authors.length + 1 };
+    this.authors.push(newAuthor);
+    return newAuthor;
   }
 
   findAll(): AuthorSubType[] {

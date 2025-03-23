@@ -1,22 +1,31 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
+import { AuthorsService } from './authors/services/authors.service';
+import { PostsService } from './authors/services/posts.service';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+
+import { AuthorsResolver } from './authors/authors.resolver';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      playground: true,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      playground: false,
+      autoSchemaFile: true,
       sortSchema: true,
-      // plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AuthorsService,
+    PostsService,
+    AuthorsResolver,
+    {
+      provide: 'APP_GUARD',
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class AppModule {}
